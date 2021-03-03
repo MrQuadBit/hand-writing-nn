@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PIZARRÓN</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style type="text/css">#canvas{border: 2px solid black;}</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<button id="boton">test</button>
+</body>
+
+<script type="text/javascript">
+	window.addEventListener("load", () => {
+	const canvas = document.querySelector("#canvas")
+	const ctx = canvas.getContext("2d")
+	
+	canvas.height = 280
+	canvas.width = 280
+
+	let painting = false
+
+	function startPosition(e){
+		painting = true
+		draw(e)
+	}
+
+	function endPosition(){
+		painting = false
+		ctx.beginPath()
+	}
+
+	function draw(e){
+		if(!painting) return;
+		
+		ctx.lineWidth = 10
+		ctx.lineCap = "round"
+		
+		ctx.lineTo(e.clientX, e.clientY)
+		ctx.stroke()
+		ctx.beginPath()
+		ctx.moveTo(e.clientX, e.clientY)
+
+	}
+
+	//-------------------------------------------
+
+	const boton = document.querySelector("#boton")
+	function test(){
+		//void ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+		ctx.drawImage(canvas, 0, 0, 280, 280, 0, 0, 280*0.1, 280*0.1); //280*0.1 down scaling
+
+		const image_data = ctx.getImageData(0,0,28,28)
+		const size = image_data.height * image_data.width
+		const offset = 4
+		let gray_scale = []
+		for(let i=0; i<size; i++){
+			gray_scale.push(image_data.data[(i*offset)+(offset-1)])
+		}
+
+		//consuming API
+		const URL = "http://127.0.0.1:4040/prediction"
+		const Data = {
+			number:gray_scale
+		}
+
+		const parameters = {
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			method: "POST",
+			body: JSON.stringify(Data),
+
+		}
+
+		fetch(URL, parameters)
+		.then(data=>{return data.json()})
+		.then(res=>{alert("El número que ingresaste parece un "+res["message"])})
+		.catch(error=>console.log(error))
+
+	}
+	boton.addEventListener("click", test)
+	//-------------------------------------------
+
+	//Event listeners
+	canvas.addEventListener("mousemove", draw)
+	canvas.addEventListener("mousedown", startPosition)
+	canvas.addEventListener("mouseup", endPosition)
+})
+
+
+</script>
+
+</html>
