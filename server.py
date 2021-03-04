@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template, Response, jsonify
 import json
 from random import randint
-from test import printNumberPLT
+from test import predict
 
 app = Flask(__name__)
 
@@ -15,8 +15,8 @@ def prediction():
 		print(request)
 		response = json.loads(request.data)
 		print(response["number"])
-		printNumberPLT(response["number"])
-		return jsonify({"message": randint(0, 9)})
+		pred = predict(response["number"])
+		return jsonify({"message": pred})
 
 
 if __name__ == "__main__":
