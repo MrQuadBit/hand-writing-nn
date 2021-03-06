@@ -14,7 +14,7 @@ def prediction():
 	if request.method == "POST":
 		print(request)
 		response = json.loads(request.data)
-		print(response["number"])
+		#print(response["number"])
 		pred = predict(response["number"])
 		return jsonify({"message": pred})
 
